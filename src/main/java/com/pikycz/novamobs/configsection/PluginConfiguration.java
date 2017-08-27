@@ -16,7 +16,9 @@ import java.util.List;
 public class PluginConfiguration extends PluginBase {
 
     private ConfigSection entities;
-
+    
+    public static boolean MOB_AI_ENABLED = true;
+    
     public final HashMap<Integer, Level> levelsToSpawn = new HashMap<>();
     private List<String> disabledWorlds;
     public static boolean spawnAnimals = true;
@@ -42,8 +44,10 @@ public class PluginConfiguration extends PluginBase {
         this.entities = new Config(this.getDataFolder() + "NovaMobs.yml", Config.YAML,
                 new ConfigSection(new LinkedHashMap<String, Object>() {
                     {
+                        put ("entities.mob-ai", false);
                         put("entities.spawn-animals", true);
                         put("entities.spawn-mobs", true);
+                        put ("disabledWorlds", "");
                     }
                 })).getSections();
     }

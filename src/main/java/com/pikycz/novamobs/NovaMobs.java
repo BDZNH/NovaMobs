@@ -1,38 +1,6 @@
 package com.pikycz.novamobs;
 
-import com.pikycz.novamobs.entities.projectile.BlueWitherSkull;
-import com.pikycz.novamobs.entities.projectile.DragonFireBall;
-import com.pikycz.novamobs.entities.projectile.GhastFireBall;
-import com.pikycz.novamobs.entities.projectile.BlazeFireBall;
-import com.pikycz.novamobs.entities.monster.walking.ZombieVillager;
-import com.pikycz.novamobs.entities.monster.walking.CaveSpider;
-import com.pikycz.novamobs.entities.monster.walking.Witch;
-import com.pikycz.novamobs.entities.monster.walking.Skeleton;
-import com.pikycz.novamobs.entities.monster.walking.Enderman;
-import com.pikycz.novamobs.entities.monster.walking.Husk;
-import com.pikycz.novamobs.entities.monster.walking.PigZombie;
-import com.pikycz.novamobs.entities.monster.walking.Spider;
-import com.pikycz.novamobs.entities.monster.walking.Zombie;
-import com.pikycz.novamobs.entities.monster.walking.Silverfish;
-import com.pikycz.novamobs.entities.monster.walking.Stray;
-import com.pikycz.novamobs.entities.monster.walking.Creeper;
-import com.pikycz.novamobs.entities.animal.walking.Mooshroom;
-import com.pikycz.novamobs.entities.animal.walking.Mule;
-import com.pikycz.novamobs.entities.animal.walking.SkeletonHorse;
-import com.pikycz.novamobs.entities.animal.walking.Chicken;
-import com.pikycz.novamobs.entities.animal.walking.Sheep;
-import com.pikycz.novamobs.entities.animal.walking.Ocelot;
-import com.pikycz.novamobs.entities.animal.walking.PolarBear;
-import com.pikycz.novamobs.entities.animal.walking.Rabbit;
-import com.pikycz.novamobs.entities.animal.walking.ZombieHorse;
-import com.pikycz.novamobs.entities.animal.walking.Villager;
-import com.pikycz.novamobs.entities.animal.walking.Donkey;
-import com.pikycz.novamobs.entities.animal.walking.Horse;
-import com.pikycz.novamobs.entities.animal.walking.Cow;
-import com.pikycz.novamobs.entities.animal.walking.Pig;
-import com.pikycz.novamobs.entities.animal.flying.Bat;
 import cn.nukkit.Player;
-import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.entity.Entity;
@@ -47,18 +15,25 @@ import cn.nukkit.nbt.tag.DoubleTag;
 import cn.nukkit.nbt.tag.FloatTag;
 import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.plugin.PluginBase;
-import cn.nukkit.utils.ConfigSection;
 import cn.nukkit.utils.TextFormat;
 
+import com.pikycz.novamobs.entities.projectile.*;
+import com.pikycz.novamobs.entities.monster.walking.*;
+import com.pikycz.novamobs.entities.animal.walking.*;
+import com.pikycz.novamobs.entities.animal.flying.Bat;
 import com.pikycz.novamobs.entities.BaseEntity;
 import com.pikycz.novamobs.entities.monster.walking.Wolf;
-import com.pikycz.novamobs.entities.block.BlockEntitySpawner;
+import com.pikycz.novamobs.task.AutoSpawnTask;
 import com.pikycz.novamobs.utils.Utils;
+import java.util.Timer;
 
 public class NovaMobs extends PluginBase implements Listener {
 
-    private ConfigSection entities;
     private static NovaMobs Instance;
+
+    public NovaMobs plugin;
+    
+    public static int spawnDelay = 20;
 
     static NovaMobs getInstance() {
         return Instance;
@@ -69,7 +44,7 @@ public class NovaMobs extends PluginBase implements Listener {
     @Override
     public void onLoad() {
         registerEntities();
-        Utils.logServerInfo("Loading MobPlugin");
+        Utils.logServerInfo("Loading NovaMobs");
         Utils.logServerInfo("Version - 1.1-Dev");
     }
 
@@ -77,6 +52,13 @@ public class NovaMobs extends PluginBase implements Listener {
     public void onEnable() {
         Instance = this;
         this.getServer().getPluginManager().registerEvents(this, this);
+
+        if (spawnDelay > 0) {
+
+            Timer timer = new Timer();
+
+            timer.schedule(new AutoSpawnTask(this), 10000, 1000);
+        }
     }
 
     private void registerEntities() {
@@ -125,9 +107,6 @@ public class NovaMobs extends PluginBase implements Listener {
         Entity.registerEntity("BlazeFireBall", BlazeFireBall.class);
         Entity.registerEntity("DragonFireBall", DragonFireBall.class);
         Entity.registerEntity("GhastDireBall", GhastFireBall.class);
-
-        // register the mob spawner (which is probably not needed anymore)
-        BlockEntity.registerBlockEntity("MobSpawner", BlockEntitySpawner.class);
 
         Utils.logServerInfo("Register: Entites/Blocks/Items - Done.");
     }
@@ -225,6 +204,14 @@ public class NovaMobs extends PluginBase implements Listener {
      */
     public static Entity create(Object type, Position source, Object... args) {
         FullChunk chunk = source.getLevel().getChunk((int) source.x >> 4, (int) source.z >> 4, true);
+
+        if (!chunk.isGenerated()) {
+            chunk.setGenerated();
+        }
+
+        if (!chunk.isPopulated()) {
+            chunk.setPopulated();
+        }
 
         if (chunk.getEntities().size() > 10) {
             FileLogger.debug(String.format("Not spawning mob because the chunk already has too many mobs!"));

@@ -18,6 +18,7 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import cn.nukkit.network.protocol.AddEntityPacket;
 import cn.nukkit.potion.Effect;
 import co.aikar.timings.Timings;
+import com.pikycz.novamobs.configsection.PluginConfiguration;
 
 import com.pikycz.novamobs.entities.monster.Monster;
 
@@ -168,14 +169,16 @@ public abstract class BaseEntity extends EntityCreature {
 
     @Override
     protected void updateMovement() {
-        if (this.lastX != this.x || this.lastY != this.y || this.lastZ != this.z || this.lastYaw != this.yaw || this.lastPitch != this.pitch) {
-            this.lastX = this.x;
-            this.lastY = this.y;
-            this.lastZ = this.z;
-            this.lastYaw = this.yaw;
-            this.lastPitch = this.pitch;
+        if (PluginConfiguration.MOB_AI_ENABLED) {
+            if (this.lastX != this.x || this.lastY != this.y || this.lastZ != this.z || this.lastYaw != this.yaw || this.lastPitch != this.pitch) {
+                this.lastX = this.x;
+                this.lastY = this.y;
+                this.lastZ = this.z;
+                this.lastYaw = this.yaw;
+                this.lastPitch = this.pitch;
 
-            this.addMovement(this.x, this.y, this.z, this.yaw, this.pitch, this.yaw);
+                this.addMovement(this.x, this.y, this.z, this.yaw, this.pitch, this.yaw);
+            }
         }
     }
 
