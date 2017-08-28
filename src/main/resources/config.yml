@@ -1,0 +1,10 @@
+#NovaMobs ConfigFile
+#Disabled Worlds 
+worlds-spawn-disabled: []
+#Animal a Monsters spawning
+entities.spawn-animals: true
+entities.spawn-mobs: true
+#ON/OFF AI
+entities.mob-ai: true
+#Spawning Frequency -- default 20ticks
+entities.auto-spawn-tick: 20

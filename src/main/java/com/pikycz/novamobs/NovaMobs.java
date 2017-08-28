@@ -1,6 +1,7 @@
 package com.pikycz.novamobs;
 
 import cn.nukkit.Player;
+import cn.nukkit.Server;
 import cn.nukkit.command.Command;
 import cn.nukkit.command.CommandSender;
 import cn.nukkit.entity.Entity;
@@ -17,6 +18,7 @@ import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.TextFormat;
 
+import com.pikycz.novamobs.configsection.MainConfig;
 import com.pikycz.novamobs.entities.projectile.*;
 import com.pikycz.novamobs.entities.monster.walking.*;
 import com.pikycz.novamobs.entities.animal.walking.*;
@@ -25,15 +27,23 @@ import com.pikycz.novamobs.entities.BaseEntity;
 import com.pikycz.novamobs.entities.monster.walking.Wolf;
 import com.pikycz.novamobs.task.AutoSpawnTask;
 import com.pikycz.novamobs.utils.Utils;
+import java.util.HashMap;
+import java.util.List;
+
 import java.util.Timer;
+import javax.xml.ws.Response;
 
 public class NovaMobs extends PluginBase implements Listener {
 
     private static NovaMobs Instance;
 
-    public NovaMobs plugin;
-    
-    public static int spawnDelay = 20;
+    private MainConfig mainConfig;
+
+    public NovaMobs NovaMobs;
+
+    public final HashMap<Integer, Level> levelsToSpawn = new HashMap<>();
+
+    public List<String> disabledWorlds;
 
     static NovaMobs getInstance() {
         return Instance;
@@ -53,12 +63,28 @@ public class NovaMobs extends PluginBase implements Listener {
         Instance = this;
         this.getServer().getPluginManager().registerEvents(this, this);
 
-        if (spawnDelay > 0) {
+        if (MainConfig.SpawnDelay > 0) {
 
             Timer timer = new Timer();
 
             timer.schedule(new AutoSpawnTask(this), 10000, 1000);
         }
+
+        for (Level level : Server.getInstance().getLevels().values()) {
+            if (disabledWorlds.contains(level.getFolderName().toLowerCase())) {
+                continue;
+            }
+
+            levelsToSpawn.put(level.getId(), level);
+        }
+    }
+
+    public void reloadConfigs(Response<Boolean> response) {
+        this.mainConfig = new MainConfig(this);
+    }
+
+    public MainConfig getMainConfig() {
+        return this.mainConfig;
     }
 
     private void registerEntities() {
@@ -108,7 +134,7 @@ public class NovaMobs extends PluginBase implements Listener {
         Entity.registerEntity("DragonFireBall", DragonFireBall.class);
         Entity.registerEntity("GhastDireBall", GhastFireBall.class);
 
-        Utils.logServerInfo("Register: Entites/Blocks/Items - Done.");
+        Utils.logServerInfo("Register: Entites - Done.");
     }
 
     /**
