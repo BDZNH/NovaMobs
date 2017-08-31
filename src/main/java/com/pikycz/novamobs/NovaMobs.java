@@ -16,30 +16,31 @@ import cn.nukkit.nbt.tag.DoubleTag;
 import cn.nukkit.nbt.tag.FloatTag;
 import cn.nukkit.nbt.tag.ListTag;
 import cn.nukkit.plugin.PluginBase;
+import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 
 import com.pikycz.novamobs.configsection.MainConfig;
 import com.pikycz.novamobs.entities.projectile.*;
 import com.pikycz.novamobs.entities.monster.walking.*;
 import com.pikycz.novamobs.entities.animal.walking.*;
-import com.pikycz.novamobs.entities.animal.flying.Bat;
 import com.pikycz.novamobs.entities.BaseEntity;
 import com.pikycz.novamobs.entities.monster.walking.Wolf;
 import com.pikycz.novamobs.task.AutoSpawnTask;
 import com.pikycz.novamobs.utils.Utils;
+import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.List;
 
 import java.util.Timer;
-import javax.xml.ws.Response;
 
 public class NovaMobs extends PluginBase implements Listener {
 
     private static NovaMobs Instance;
 
-    private MainConfig mainConfig;
+    public NovaMobs plugin;
 
-    public NovaMobs NovaMobs;
+    Config config;
 
     public final HashMap<Integer, Level> levelsToSpawn = new HashMap<>();
 
@@ -54,14 +55,23 @@ public class NovaMobs extends PluginBase implements Listener {
     @Override
     public void onLoad() {
         registerEntities();
-        Utils.logServerInfo("Loading NovaMobs");
-        Utils.logServerInfo("Version - 1.1-Dev");
+        Utils.logServerInfo(TextFormat.colorize("&bL&fo&ea&cd&di&en&fg &bNova&6Mobs &f- &aRe&cC&ar&be&5a&ct&2e"));
+        Utils.logServerInfo("Version - 1.2-Dev");
     }
 
     @Override
     public void onEnable() {
         Instance = this;
         this.getServer().getPluginManager().registerEvents(this, this);
+        //Config
+        this.getDataFolder().mkdirs();
+        this.saveResource("config.yml");
+        config = new Config(this.getDataFolder() + "/config.yml");
+        config.getList("worlds-spawn-disabled", new ArrayList());
+        config.getBoolean("spawn-animals", true);
+        config.getBoolean("spawn-mobs", true);
+        config.getInt("auto-spawn-tick", 20);
+        //Config
 
         if (MainConfig.SpawnDelay > 0) {
 
@@ -77,34 +87,27 @@ public class NovaMobs extends PluginBase implements Listener {
 
             levelsToSpawn.put(level.getId(), level);
         }
-    }
 
-    public void reloadConfigs(Response<Boolean> response) {
-        this.mainConfig = new MainConfig(this);
-    }
-
-    public MainConfig getMainConfig() {
-        return this.mainConfig;
     }
 
     private void registerEntities() {
         // register Passive entities
-        Entity.registerEntity(Bat.class.getSimpleName(), Bat.class); //Fly too high
+        //Entity.registerEntity(Bat.class.getSimpleName(), Bat.class); //Fly too high
         Entity.registerEntity(Chicken.class.getSimpleName(), Chicken.class);
         Entity.registerEntity(Cow.class.getSimpleName(), Cow.class);
-        Entity.registerEntity(Donkey.class.getSimpleName(), Donkey.class);
-        Entity.registerEntity(Horse.class.getSimpleName(), Horse.class);
+        //Entity.registerEntity(Donkey.class.getSimpleName(), Donkey.class);
+        //Entity.registerEntity(Horse.class.getSimpleName(), Horse.class);//TODO: Riding O-O
         Entity.registerEntity(Mooshroom.class.getSimpleName(), Mooshroom.class);
-        Entity.registerEntity(Mule.class.getSimpleName(), Mule.class);
+        //Entity.registerEntity(Mule.class.getSimpleName(), Mule.class);
         Entity.registerEntity(Ocelot.class.getSimpleName(), Ocelot.class);
         Entity.registerEntity(Pig.class.getSimpleName(), Pig.class);
         Entity.registerEntity(PolarBear.class.getSimpleName(), PolarBear.class);
         Entity.registerEntity(Rabbit.class.getSimpleName(), Rabbit.class);
         Entity.registerEntity(Sheep.class.getSimpleName(), Sheep.class);
-        Entity.registerEntity(SkeletonHorse.class.getSimpleName(), SkeletonHorse.class);
+        //Entity.registerEntity(SkeletonHorse.class.getSimpleName(), SkeletonHorse.class);
         Entity.registerEntity(Villager.class.getSimpleName(), Villager.class);
         Entity.registerEntity(Wolf.class.getSimpleName(), Wolf.class);
-        Entity.registerEntity(ZombieHorse.class.getSimpleName(), ZombieHorse.class);
+        //Entity.registerEntity(ZombieHorse.class.getSimpleName(), ZombieHorse.class);
 
         //register Monster entities
         //Entity.registerEntity(Blaze.class.getSimpleName(), Blaze.class);

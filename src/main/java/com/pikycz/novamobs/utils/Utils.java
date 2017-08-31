@@ -10,7 +10,7 @@ public class Utils {
     private static final Server SERVER = Server.getInstance();
 
     public static final void logServerInfo(String text) {
-        SERVER.getLogger().info(TextFormat.GOLD + "[NovaMobs] " + text);
+        SERVER.getLogger().info(TextFormat.colorize("[&bNova&6Mobs]") + text);
     }
 
     private static final Random random = new Random(System.currentTimeMillis());

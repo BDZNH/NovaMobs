@@ -1,8 +1,7 @@
 package com.pikycz.novamobs.configsection;
 
 import cn.nukkit.level.Level;
-import cn.nukkit.plugin.PluginBase;
-import com.pikycz.novamobs.utils.ConfigFile;
+import cn.nukkit.utils.Config;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,42 +9,34 @@ import java.util.List;
 /**
  * @author PikyCZ
  */
-public class MainConfig extends ConfigFile {
+public class MainConfig extends Config {
 
     public final HashMap<Integer, Level> levelsToSpawn = new HashMap<>();
     public List<String> disabledWorlds;
     public static boolean SpawnAnimals;
     public static boolean SpawnMobs;
-    public static boolean MOB_AI_ENABLED;
     public static int SpawnDelay;
-
-    public MainConfig(PluginBase plugin) {
-        super(plugin, "config");
-        this.disabledWorlds = this.config.getList("worlds-spawn-disabled", new ArrayList());
-        MainConfig.SpawnAnimals = this.config.getBoolean("entities.spawn-animals");
-        MainConfig.SpawnMobs = this.config.getBoolean("entities.spawn-mobs");
-        MainConfig.MOB_AI_ENABLED = this.config.getBoolean("entities.mob-ai");
-        MainConfig.SpawnDelay = this.config.getInt("entities.auto-spawn-tick");
-    }
+    
+    Config config;
 
     public List<String> getdisabledWorlds() {
-        return this.disabledWorlds;
+        return this.config.get("worlds-spawn-disabled", new ArrayList());
     }
 
     public boolean getspawnAnimals() {
-        return MainConfig.SpawnAnimals;
+        return this.config.get("spawn-animals", true);
     }
 
     public boolean getspawnMobs() {
-        return MainConfig.SpawnMobs;
-    }
-
-    public boolean getMOB_AI_ENABLED() {
-        return MainConfig.MOB_AI_ENABLED;
+        return this.config.get("spawn-mobs", true);
     }
 
     public int getSpawnDelay() {
-        return MainConfig.SpawnDelay;
+        return this.config.get("auto-spawn-tick", 20);
+    }
+    
+    public void saveConfig() {
+        this.config.save();
     }
 
 }
