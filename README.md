@@ -1,12 +1,15 @@
-# NovaMobs 
+# ✨NovaMobs✨ 
 
 Development: **[PikyCZ](https://github.com/PikyCZ)**
 
-[![CircleCI](https://circleci.com/gh/PikyCZ/MobPlugin/tree/master.svg?style=shield&circle-token=)](https://circleci.com/gh/PikyCZ/MobPlugin/tree/master) //Fix Build
+[![Github All Releases](https://img.shields.io/github/downloads/PikyCZ/NovaMobs/total.svg)](https://github.com/PikyCZ/NovaMobs/releases)
+[![GitHub release](https://img.shields.io/github/release/PikyCZ/NovaMobs.svg)](https://github.com/PikyCZ/NovaMobs/releases/latest)
+[![](https://img.shields.io/badge/stable-status-brightgreen.svg)](status/status.md)
 
 NovaMobs is a plugin that implements the mob entities for MCPE including movement, aggression etc.
 
 # Commands
+-----------
 | Command | Usage | Description |
 | ------- |  ----- | ----------- |
 | `/mob` | `/mob` | Display list of commands|
@@ -16,11 +19,14 @@ NovaMobs is a plugin that implements the mob entities for MCPE including movemen
 | `/mob version` | `/mob version` | Show novamobs version|
 
 # Permissions
+-------------
 ```yml
  novamobs.mob:
     default: op
   ```
-
+  
+ Download
+ ---------
 __[Jar Download at Circle CI](https://circleci.com/gh/PikyCZ/MobPlugin/tree/master/)__ (**login required**)
 
 __[Jar Download at Releases tab](https://github.com/PikyCZ/NovaMobs/releases)__ (**WorkingVersions**)
@@ -29,4 +35,4 @@ __[Jar Download at Releases tab](https://github.com/PikyCZ/NovaMobs/releases)__ 
 * [PikyCZ](//github.com/PikyCZ)
 * [Creeperface01](//github.com/Creeperface01)
 * [Asuna-Yuuki](//https://github.com/Asuna-Yuuki)
-* [caspervanneck](//https://github.com/caspervanneck)
+* [wbzhang2594](//https://github.com/wbzhang2594)
