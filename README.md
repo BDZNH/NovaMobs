@@ -24,7 +24,6 @@ NovaMobs is a plugin that implements the mob entities for MCPE including movemen
  novamobs.mob:
     default: op
   ```
-  
 # Config
 --------
 ```yml
@@ -37,7 +36,7 @@ spawn-mobs: true
 #Spawning Frequency -- default 20ticks
 auto-spawn-tick: 20
 ```
-  
+
  Download
  ---------
 __[Jar Download at Circle CI](https://circleci.com/gh/PikyCZ/MobPlugin/tree/master/)__ (**login required**)
