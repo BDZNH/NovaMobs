@@ -25,8 +25,8 @@ NovaMobs is a plugin that implements the mob entities for MCPE including movemen
     default: op
   ```
   
-#Config
--------------
+# Config
+--------
 ```yml
 #NovaMobs ConfigFile
 #Disabled Worlds 
