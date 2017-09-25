@@ -1,18 +1,16 @@
 package com.pikycz.novamobs.entities.monster.walking;
 
-import cn.nukkit.block.BlockLiquid;
 import cn.nukkit.entity.Entity;
+import cn.nukkit.entity.EntityAgeable;
 import cn.nukkit.entity.EntityCreature;
 import cn.nukkit.entity.EntityExplosive;
 import cn.nukkit.entity.data.ByteEntityData;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.ExplosionPrimeEvent;
 import cn.nukkit.item.Item;
+import cn.nukkit.item.ItemSkull;
 import cn.nukkit.level.Explosion;
 import cn.nukkit.level.format.FullChunk;
-import cn.nukkit.level.sound.TNTPrimeSound;
-import cn.nukkit.math.NukkitMath;
-import cn.nukkit.math.Vector2;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.nbt.tag.CompoundTag;
 
@@ -22,17 +20,16 @@ import com.pikycz.novamobs.utils.Utils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Creeper extends WalkingMonster implements EntityExplosive {
+public class Creeper extends WalkingMonster implements EntityAgeable, EntityExplosive {
 
     public static final int NETWORK_ID = 33;
 
+    public static int EXPLOSION_TIME = 48;
+    public static float EXPLOSION_TARGET_DISTANCE_SQUARED = 6f * 6f;
     public static final int DATA_POWERED = 19;
+    public static float BLAST_FORCE = 2.8f;
 
-    public static final int DATA_FUSE = 56;
-
-    private int bombTime = 30;
-
-    private boolean exploded = false;
+    private int bombTime = 0;
 
     public Creeper(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
@@ -42,7 +39,11 @@ public class Creeper extends WalkingMonster implements EntityExplosive {
     public int getNetworkId() {
         return NETWORK_ID;
     }
-    
+
+    public double getAttackDistance() {
+        return 2;
+    }
+
     @Override
     public String getName() {
         return "Creeper";
@@ -59,18 +60,12 @@ public class Creeper extends WalkingMonster implements EntityExplosive {
     }
 
     @Override
-    public double getSpeed() {
-        return 0.9;
-    }
-
-    @Override
     public void initEntity() {
         super.initEntity();
 
         if (this.namedTag.getBoolean("powered") || this.namedTag.getBoolean("IsPowered")) {
             this.dataProperties.putBoolean(DATA_POWERED, true);
         }
-        setMaxHealth(20);
     }
 
     public boolean isPowered() {
@@ -91,141 +86,57 @@ public class Creeper extends WalkingMonster implements EntityExplosive {
         return this.bombTime;
     }
 
-    @Override
     public void explode() {
-        ExplosionPrimeEvent ev = new ExplosionPrimeEvent(this, 2.8);
+        ExplosionPrimeEvent ev = new ExplosionPrimeEvent(this, BLAST_FORCE);
         this.server.getPluginManager().callEvent(ev);
-
         if (!ev.isCancelled()) {
             Explosion explosion = new Explosion(this, (float) ev.getForce(), this);
             if (ev.isBlockBreaking()) {
-                explosion.explodeA();
+                explosion.explode();
+            } else {
+                explosion.explodeB();
             }
-            explosion.explodeB();
-            this.exploded = true;
         }
         this.close();
     }
 
     @Override
     public boolean onUpdate(int currentTick) {
-        if (this.server.getDifficulty() < 1) {
-            this.close();
+        if (super.onUpdate(currentTick)) {
+            Vector3 target = getTarget();
+            if (target != null && target instanceof EntityCreature && target.distanceSquared(this) < EXPLOSION_TARGET_DISTANCE_SQUARED) {
+                if (bombTime++ >= EXPLOSION_TIME) {
+                    this.explode();
+                    return false;
+                }
+            } else if (bombTime > 0) {
+                bombTime = Math.max(0, bombTime - 1);
+            }
+            return true;
+        } else {
             return false;
         }
-
-        if (!this.isAlive()) {
-            if (++this.deadTicks >= 23) {
-                this.close();
-                return false;
-            }
-            return true;
-        }
-
-        int tickDiff = currentTick - this.lastUpdate;
-        this.lastUpdate = currentTick;
-        this.entityBaseTick(tickDiff);
-
-        if (!this.isMovement()) {
-            return true;
-        }
-
-        if (this.isKnockback()) {
-            this.move(this.motionX * tickDiff, this.motionY, this.motionZ * tickDiff);
-            this.motionY -= this.getGravity() * tickDiff;
-            this.updateMovement();
-            return true;
-        }
-
-        Vector3 before = this.target;
-        this.checkTarget();
-
-        if (this.target instanceof EntityCreature || before != this.target) {
-            double x = this.target.x - this.x;
-            double y = this.target.y - this.y;
-            double z = this.target.z - this.z;
-
-            double diff = Math.abs(x) + Math.abs(z);
-            double distance = target.distance(this);
-            if (distance <= 3) {
-                if (target instanceof EntityCreature) {
-                    if (bombTime == 30) {
-                        this.level.addSound(new TNTPrimeSound(this.add(0, getEyeHeight())));
-                    }
-                    this.bombTime -= tickDiff;
-                    if (this.bombTime <= 0) {
-                        this.bombTime = 30;
-                        this.explode();
-                        return false;
-                    }
-
-                    this.setDataProperty(new ByteEntityData(DATA_FUSE, this.bombTime));
-                } else if (Math.pow(this.x - target.x, 2) + Math.pow(this.z - target.z, 2) <= 1) {
-                    this.moveTime = 0;
-                }
-            } else {
-                if (this.bombTime < 30) {
-                    this.bombTime = Math.min(bombTime + tickDiff, 30);
-                    this.setDataProperty(new ByteEntityData(DATA_FUSE, this.bombTime));
-                }
-
-                this.motionX = this.getSpeed() * 0.15 * (x / diff);
-                this.motionZ = this.getSpeed() * 0.15 * (z / diff);
-            }
-            this.yaw = Math.toDegrees(-Math.atan2(x / diff, z / diff));
-            this.pitch = y == 0 ? 0 : Math.toDegrees(-Math.atan2(y, Math.sqrt(x * x + z * z)));
-        }
-
-        double dx = this.motionX * tickDiff;
-        double dz = this.motionZ * tickDiff;
-        boolean isJump = this.checkJump(dx, dz);
-        if (this.stayTime > 0) {
-            this.stayTime -= tickDiff;
-            this.move(0, this.motionY * tickDiff, 0);
-        } else {
-            Vector2 be = new Vector2(this.x + dx, this.z + dz);
-            this.move(dx, this.motionY * tickDiff, dz);
-            Vector2 af = new Vector2(this.x, this.z);
-
-            if ((be.x != af.x || be.y != af.y) && !isJump) {
-                this.moveTime -= 90 * tickDiff;
-            }
-        }
-
-        if (!isJump) {
-            if (this.onGround) {
-                this.motionY = 0;
-            } else if (this.motionY > -this.getGravity() * 4) {
-                if (!(this.level.getBlock(new Vector3(NukkitMath.floorDouble(this.x), (int) (this.y + 0.8), NukkitMath.floorDouble(this.z))) instanceof BlockLiquid)) {
-                    this.motionY -= this.getGravity() * 1;
-                }
-            } else {
-                this.motionY -= this.getGravity() * tickDiff;
-            }
-        }
-        this.updateMovement();
-        return true;
-    }
-
-    @Override
-    public Vector3 updateMove(int tickDiff) {
-        return null;
-    }
-
-    public void attackEntity(Entity player) {
-        // creepers don't attack, they only explode
     }
 
     @Override
     public Item[] getDrops() {
         List<Item> drops = new ArrayList<>();
-        if (this.exploded && this.isPowered()) {
-            // TODO: add creeper head
-        }
         if (this.lastDamageCause instanceof EntityDamageByEntityEvent) {
-            int gunPowder = Utils.rand(0, 3); // drops 0-2 gunpowder
-            for (int i = 0; i < gunPowder; i++) {
+            int bones = Utils.rand(0, 2); // drops 0-1 flint
+            int arrows = Utils.rand(0, 2); // drops 0- gunpowder
+            int bow = Utils.rand(0, 101) <= 9 ? 1 : 0; // with a 8,5% chance to RedstonDust
+            int skull = Utils.rand(0, 101) <= 9 ? 1 : 0; // with a 8,5% chance to Skull is dropped
+            for (int i = 0; i < bones; i++) {
+                drops.add(Item.get(Item.FLINT, 0, 1));
+            }
+            for (int i = 0; i < arrows; i++) {
                 drops.add(Item.get(Item.GUNPOWDER, 0, 1));
+            }
+            for (int i = 0; i < bow; i++) {
+                drops.add(Item.get(Item.REDSTONE_DUST, 0, 1));
+            }
+            for (int i = 0; i < skull; i++) {
+                drops.add(Item.get(ItemSkull.CREEPER_HEAD, 0, 1));
             }
         }
         return drops.toArray(new Item[drops.size()]);
@@ -236,8 +147,13 @@ public class Creeper extends WalkingMonster implements EntityExplosive {
         return 5; // gain 5 experience
     }
 
-    public int getMaxFallHeight() {
-        return this.followTarget == null ? 3 : 3 + (int) (this.getHealth() - 1.0F); //TODO: change this to attack target only
+    @Override
+    public void attackEntity(Entity player) {
+    }
+
+    @Override
+    public boolean isBaby() {
+        return false;
     }
 
 }

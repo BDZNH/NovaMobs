@@ -11,6 +11,10 @@ import cn.nukkit.nbt.tag.CompoundTag;
 import com.pikycz.novamobs.utils.Utils;
 
 public abstract class FlyingEntity extends BaseEntity {
+    
+    float strafe;
+    float forward; 
+    float friction;
 
     public FlyingEntity(FullChunk chunk, CompoundTag nbt) {
         super(chunk, nbt);
@@ -93,7 +97,26 @@ public abstract class FlyingEntity extends BaseEntity {
     public Vector3 updateMove(int tickDiff) {
         if (!this.isMovement()) {
             return null;
-        }
+        }        
+
+        /*float f = strafe * strafe + forward * forward;
+
+        if (f >= 1.0E-4F){
+             f = MathHelper.sqrt(f);
+
+            if (f < 1.0F)
+            {
+                f = 1.0F;
+            }
+
+            f = friction / f;
+            strafe = strafe * f;
+            forward = forward * f;
+            float f1 = MathHelper.sin((float)this.yaw * (float)Math.PI / 180.0F);
+            float f2 = MathHelper.cos((float)this.yaw * (float)Math.PI / 180.0F);
+            this.motionX += (double)(strafe * f2 - forward * f1);
+            this.motionZ += (double)(forward * f2 + strafe * f1);
+        }*/
 
         if (this.isKnockback()) {
             this.move(this.motionX * tickDiff, this.motionY * tickDiff, this.motionZ * tickDiff);

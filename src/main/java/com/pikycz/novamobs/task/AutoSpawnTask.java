@@ -241,7 +241,7 @@ public class AutoSpawnTask extends TimerTask {
         return count;
     }
 
-    public void createEntity(Object type, Position pos) {
+    public void createEntity(String type, Position pos) {
         Entity entity = NovaMobs.create(type, pos);
         if (entity != null) {
             entity.spawnToAll();

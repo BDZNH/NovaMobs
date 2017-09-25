@@ -57,8 +57,8 @@ public class WitherSkeleton extends WalkingMonster {
         MobEquipmentPacket pk = new MobEquipmentPacket();
         pk.eid = this.getId();
         pk.item = new ItemSwordIron();
-        pk.slot = 10;
-        pk.selectedSlot = 10;
+        pk.hotbarSlot = 10;
+        pk.inventorySlot = 10;
         player.dataPacket(pk);
     }
 

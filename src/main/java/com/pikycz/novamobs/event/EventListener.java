@@ -1,8 +1,6 @@
 package com.pikycz.novamobs.event;
 
 import cn.nukkit.Player;
-import cn.nukkit.block.Block;
-import cn.nukkit.blockentity.BlockEntity;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
@@ -11,9 +9,7 @@ import cn.nukkit.event.entity.EntityDeathEvent;
 import cn.nukkit.event.player.PlayerInteractEvent;
 import cn.nukkit.event.player.PlayerInteractEvent.Action;
 import cn.nukkit.item.Item;
-import cn.nukkit.nbt.tag.CompoundTag;
 import com.pikycz.novamobs.entities.BaseEntity;
-import com.pikycz.novamobs.entities.block.BlockEntitySpawner;
 
 public class EventListener implements Listener {
 
@@ -26,21 +22,8 @@ public class EventListener implements Listener {
         }
 
         Item item = ev.getItem();
-        Block block = ev.getBlock();
-        if (item.getId() == Item.SPAWN_EGG && block.getId() == Item.MONSTER_SPAWNER) {
+        if (item.getId() == Item.SPAWN_EGG) {
 
-            BlockEntity blockEntity = block.getLevel().getBlockEntity(block);
-            if (blockEntity != null && blockEntity instanceof BlockEntitySpawner) {
-                ((BlockEntitySpawner) blockEntity).setSpawnEntityType(item.getDamage());
-            } else {
-                if (blockEntity != null) {
-                    blockEntity.close();
-                }
-                CompoundTag nbt = new CompoundTag().putString("id", BlockEntity.MOB_SPAWNER).putInt("EntityId", item.getDamage()).putInt("x", (int) block.x).putInt("y", (int) block.y).putInt("z",
-                        (int) block.z);
-
-                BlockEntitySpawner blockEntitySpawner = new BlockEntitySpawner(block.getLevel().getChunk((int) block.x >> 4, (int) block.z >> 4), nbt);
-            }
         }
     }
 

@@ -1,17 +1,10 @@
 package com.pikycz.novamobs.utils;
 
-import cn.nukkit.Server;
-import cn.nukkit.utils.TextFormat;
-
+import cn.nukkit.math.NukkitRandom;
+import cn.nukkit.math.Vector3;
 import java.util.Random;
 
 public class Utils {
-
-    private static final Server SERVER = Server.getInstance();
-
-    public static final void logServerInfo(String text) {
-        SERVER.getLogger().info(TextFormat.colorize("[&bNova&6Mobs]") + text);
-    }
 
     private static final Random random = new Random(System.currentTimeMillis());
 
@@ -38,6 +31,12 @@ public class Utils {
      */
     public static boolean rand() {
         return random.nextBoolean();
+    }
+
+    public static Vector3 randomVector(Vector3 from, int xRadius, int yRadius, int zRadius) {
+        NukkitRandom random = new NukkitRandom();
+
+        return from.add(random.nextRange(-xRadius, xRadius), random.nextRange(-yRadius, yRadius), random.nextRange(-zRadius, zRadius));
     }
 
 }

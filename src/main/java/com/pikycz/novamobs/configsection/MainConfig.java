@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * @author PikyCZ
  */
-public class MainConfig extends Config {
+public class MainConfig {
 
     public final HashMap<Integer, Level> levelsToSpawn = new HashMap<>();
     public List<String> disabledWorlds;
