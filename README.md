@@ -17,7 +17,8 @@ NovaMobs is a plugin that implements the mob entities for MCPE including movemen
 | `/mob removemobs` | `/mob removemobs` | Remove all living mobs|
 | `/mob removeitems` | `/mob removeitems` | Remove all items from all levels (ground)|
 | `/mob version` | `/mob version` | Show novamobs version|
-
+# Usage
+Move the NovaMobs.jar into directory `plugin`. type command as a op when you get into Minecraft. Instead of console.
 # Permissions
 -------------
 ```yml
